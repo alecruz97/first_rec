@@ -21,8 +21,9 @@
             alert('Este sitio usa cookies. <a href="/comunes/cookies.php">Estoy de acuerdo</a>', 'info');
         }
 
-        $pdo = conectar();
         $pag = recogerNumPag();
+        $orden = recogerOrden();
+        $pdo = conectar();
 
         if (es_POST()) {
             if (isset($_POST['id'])) {
@@ -50,7 +51,7 @@
         $sql .= ' ORDER BY num_dep LIMIT ' . FPP
               . ' OFFSET ' . ($pag - 1) * FPP;
         $sent = ejecutarConsulta($sql, $execute, $pdo);
-        dibujarTabla($sent, $nfilas, PAR, $errores);
+        dibujarTabla($sent, $nfilas, PAR, $orden, $errores);
         $npags = ceil($nfilas / FPP);
         ?>
         <div class="row">
@@ -60,7 +61,7 @@
                 </a>
             </div>
         </div>
-        <?php paginador($pag, $npags) ?>
+        <?php paginador($pag, $npags, $orden) ?>
     </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

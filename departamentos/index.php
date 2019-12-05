@@ -26,6 +26,7 @@
         }
         
         $pag = recogerNumPag();
+        $orden = recogerOrden();
         $pdo = conectar();
         
         if (es_POST()) {
@@ -66,10 +67,10 @@
             insertarFiltro($sql, $execute, $k, $args, PAR, $errores);    
         }
         $nfilas = contarConsulta($sql, $execute, $pdo);
-        $sql .= ' ORDER BY num_dep LIMIT ' . FPP
+        $sql .= " ORDER BY $orden LIMIT " . FPP
               . ' OFFSET ' . ($pag - 1) * FPP;
         $sent = ejecutarConsulta($sql, $execute, $pdo);
-        dibujarTabla($sent, $nfilas, PAR, $errores);
+        dibujarTabla($sent, $nfilas, PAR, $orden, $errores);
         $npags = ceil($nfilas / FPP);
         ?>
         <div class="row">
@@ -79,7 +80,7 @@
                 </a>
             </div>
         </div>
-        <?php paginador($pag, $npags) ?>
+        <?php paginador($pag, $npags, $orden) ?>
     </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

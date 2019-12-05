@@ -183,8 +183,10 @@ function contarConsulta($sql, $execute, $pdo)
     return $count;
 }
 
-function dibujarTabla($sent, $count, $par, $errores)
-{ ?>
+function dibujarTabla($sent, $count, $par, $orden, $errores)
+{
+    $filtro = paramsFiltro();
+    ?>
     <?php if ($count == 0): ?>
         <?php alert('No se ha encontrado ninguna fila que coincida.', 'danger') ?>        <div class="row mt-3">
     <?php elseif (isset($errores[0])): ?>
@@ -195,7 +197,12 @@ function dibujarTabla($sent, $count, $par, $errores)
                 <table class="table">
                     <thead>
                         <?php foreach ($par as $k => $v): ?>
-                            <th scope="col"><?= $par[$k]['etiqueta'] ?></th>    
+                            <th scope="col">
+                                <a href="<?= "?$filtro&orden=$k" ?>">
+                                    <?= $par[$k]['etiqueta'] ?>
+                                </a>
+                                <?= ($k === $orden) ? '⬆' : '' ?>
+                            </th>
                         <?php endforeach ?>
                         <th scope="col">Acciones</th>
                     </thead>
@@ -392,22 +399,28 @@ function noLogueoObligatorio()
     return false;
 }
 
-function paginador($pag, $npags)
-{ ?>
+function paginador($pag, $npags, $orden)
+{
+    $filtro = paramsFiltro();
+
+    $ant = $pag - 1;
+    $sig = $pag + 1; 
+    $orden = "orden=$orden";
+    ?>
     <div class="row">
         <div class="col-6 offset-3 mt-3">
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
                     <li class="page-item <?= ($pag <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?pag=<?= $pag - 1 ?>">Anterior</a>
+                        <a class="page-link" href="<?= "?pag=$ant&$filtro&$orden" ?>">Anterior</a>
                     </li>
                     <?php for ($i = 1; $i <= $npags; $i++): ?>
                         <li class="page-item <?= ($i == $pag) ? 'active' : '' ?>">
-                            <a class="page-link" href="?pag=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link" href="<?= "?pag=$i&$filtro&$orden" ?>"><?= $i ?></a>
                         </li>
                     <?php endfor ?>
                     <li class="page-item <?= ($pag >= $npags) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?pag=<?= $pag + 1 ?>">Siguiente</a>
+                        <a class="page-link" href="<?= "?pag=$sig&$filtro&$orden" ?>">Siguiente</a>
                     </li>
                 </ul>
             </nav>
@@ -425,4 +438,27 @@ function recogerNumPag()
     }
     
     return $pag;
+}
+
+function recogerOrden()
+{
+    if (isset($_GET['orden'])) {
+        $orden = trim($_GET['orden']);
+        unset($_GET['orden']);
+    } else {
+        $orden = 'num_dep';
+    }
+    
+    return $orden;
+}
+
+function paramsFiltro()
+{
+    $filtro = [];
+
+    foreach ($_GET as $k => $v) {
+        $filtro[] = "$k=$v";
+    }
+
+    return implode('&', $filtro);
 }

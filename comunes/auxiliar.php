@@ -65,7 +65,7 @@ function dibujarFormularioIndex($args, $par, $pdo, $errores)
     <div class="row mt-3">
         <div class="col-4 offset-4">
             <form action="" method="get">
-                <?php dibujarElementoFormulario($args, $par, $pdo, $errores) ?>
+                <?php dibujarElementoFormulario($args, $par, $pdo, $errores, true) ?>
                 <button type="submit" class="btn btn-primary">
                     Buscar
                 </button>
@@ -116,12 +116,14 @@ function dibujarFormulario($args, $par, $accion, $pdo, $errores)
     <?php
 }
 
-function dibujarElementoFormulario($args, $par, $pdo, $errores)
+function dibujarElementoFormulario($args, $par, $pdo, $errores, $index = false)
 {
     foreach ($par as $k => $v): ?>
         <?php if (isset($par[$k]['def'])): ?>
             <div class="form-group">
-                <label for="<?= $k ?>"><?= $par[$k]['etiqueta'] ?></label>
+                <?php if ($index || !isset($par[$k]['virtual'])): ?>
+                    <label for="<?= $k ?>"><?= $par[$k]['etiqueta'] ?></label>
+                <?php endif ?>
                 <?php if (isset($par[$k]['relacion'])): ?>
                     <?php
                     $tabla = $par[$k]['relacion']['tabla'];
@@ -131,6 +133,7 @@ function dibujarElementoFormulario($args, $par, $pdo, $errores)
                                            FROM $tabla");
                     ?>
                     <select id="<?= $k ?>" name="<?= $k ?>" class="form-control">
+                        <option value=""></option>
                         <?php foreach ($sent as $fila): ?>
                             <option value="<?= h($fila[0]) ?>"
                                     <?= selected($fila[0], $args['departamento_id']) ?>>
@@ -143,7 +146,7 @@ function dibujarElementoFormulario($args, $par, $pdo, $errores)
                            class="form-control <?= valido($k, $errores) ?>"
                            id="<?= $k ?>" name="<?= $k ?>"
                            value="">
-                <?php else: ?>
+                <?php elseif ($index || !isset($par[$k]['virtual'])): ?>
                     <input type="text"
                            class="form-control <?= valido($k, $errores) ?>"
                            id="<?= $k ?>" name="<?= $k ?>"
@@ -212,20 +215,23 @@ function dibujarTabla($sent, $count, $par, $orden, $errores)
                                 <?php foreach ($par as $k => $v): ?>
                                     <?php if (isset($par[$k]['relacion'])): ?>
                                         <?php $visualizar = $par[$k]['relacion']['visualizar'] ?>
-                                        <td><?= $fila[$visualizar] ?></td>
+                                        <?php $d_id = $fila['departamento_id'] ?>
+                                        <td>
+                                            <a href="/departamentos/modificar.php?id=<?= $d_id ?>">
+                                                <?= $fila[$visualizar] ?>
+                                            </a>
+                                        </td>
                                     <?php else: ?>
                                         <td><?= h($fila[$k]) ?></td>
                                     <?php endif ?>
                                 <?php endforeach ?>
                                 <td>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?= $fila['id'] ?>">
-                                        <?= token_csrf() ?>
-                                        <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
-                                        <a href="modificar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-info" role="button">
-                                            Modificar
-                                        </a>
-                                    </form>
+                                    <a href="borrar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-danger" role="button">
+                                        Borrar
+                                    </a>
+                                    <a href="modificar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-info" role="button">
+                                        Modificar
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach ?>

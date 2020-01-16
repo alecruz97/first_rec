@@ -226,11 +226,31 @@ function dibujarTabla($sent, $count, $par, $orden, $errores)
                                     <?php endif ?>
                                 <?php endforeach ?>
                                 <td>
-                                    <a href="borrar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-danger" role="button">
-                                        Borrar
-                                    </a>
+                                    <?php
+                                        $pdo = conectar();
+                                        $stmt = $pdo->prepare('SELECT COUNT(*)
+                                                                FROM empleados
+                                                                WHERE departamento_id = :id');
+                                        $stmt->execute(['id' => $fila['id']]);
+
+                                        if ($stmt->fetchColumn() === 0):
+                                    ?>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="id" value="<?= $fila['id'] ?>">
+                                            <?= token_csrf() ?>
+                                            <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                                        
+                                    <?php else: ?>
+                                        <a href="borrar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-danger" role="button">
+                                            Borrar
+                                        </a>
+                                    <?php endif ?>
+                                    
                                     <a href="modificar.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-info" role="button">
                                         Modificar
+                                    </a>
+                                    <a href="ver.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-info" role="button">
+                                        Ver
                                     </a>
                                 </td>
                             </tr>

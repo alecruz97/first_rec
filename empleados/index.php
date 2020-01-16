@@ -61,7 +61,6 @@
                 </a>
             </div>
         </div>
-        <?php paginador($pag, $npags, $orden) ?>
     </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
